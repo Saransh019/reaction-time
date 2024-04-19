@@ -1,0 +1,31 @@
+body {
+	background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 100vw;
+    min-height: 100vh;
+    margin: 0;
+}
+
+#startTestButton {
+	display: block;
+	margin: 0 auto;
+	padding: 10px 20px;
+	font-size: 20px;
+}
+
+#responseButton {
+	display: none;
+
+	padding: 10px 20px;
+	font-size: 20px;
+}
+
+#result {
+	position: fixed;
+	top: 20px;
+	left: 20px;
+	font-size: 20px;
+}
