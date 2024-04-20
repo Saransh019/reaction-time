@@ -80,6 +80,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const path = require("path");
+require('dotenv').config()
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -89,8 +90,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 // MongoDB URI
-const uri =
-  "mongodb+srv://vercel-admin-user:DhfrRFug5a0yIj7Z@reactiontime.lqhvjwy.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = process.env.MONGODB_URI;
 
 // Function to insert data into MongoDB
 async function insertData(client, receivedData) {
