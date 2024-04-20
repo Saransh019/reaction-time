@@ -90,7 +90,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // MongoDB URI
 const uri =
-  "mongodb+srv://saransh1906:mongo%40123@reactiontime.lqhvjwy.mongodb.net/?retryWrites=true&w=majority&appName=reactiontime";
+  "mongodb+srv://vercel-admin-user:DhfrRFug5a0yIj7Z@reactiontime.lqhvjwy.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
 // Function to insert data into MongoDB
 async function insertData(client, receivedData) {
