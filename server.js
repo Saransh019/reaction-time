@@ -1,69 +1,152 @@
+// const express = require("express");
+// const app = express();
+// const path = require("path");
+// const bodyParser = require("body-parser");
+// const fs = require("fs");
+// const csv = require("csv-parser");
+
+// const { MongoClient, ServerApiVersion } = require("mongodb");
+// const uri =
+//   "mongodb+srv://saransh1906:mongo%40123@reactiontime.lqhvjwy.mongodb.net/?retryWrites=true&w=majority&appName=reactiontime";
+// const client = new MongoClient(uri, {
+//   serverApi: {
+//     version: ServerApiVersion.v1,
+//     strict: true,
+//     deprecationErrors: true,
+//   },
+// });
+
+// async function run() {
+//     const client = new MongoClient(uri, {
+//       serverApi: {
+//         version: ServerApiVersion.v1,
+//         strict: true,
+//         deprecationErrors: true,
+//       },
+//     });
+  
+//     try {
+//       await client.connect();
+//       console.log(
+//         "Connected to MongoDB. You successfully connected to MongoDB!"
+//       );
+      
+//       // Call the insertData function after connecting to MongoDB
+//       app.post("/submitData", (req, res) => {
+//         const receivedData = req.body;
+//         console.log("Received data:", receivedData);
+//         insertData(client, receivedData);
+//         res.sendStatus(200);
+//       });
+  
+//     } catch (error) {
+//       console.error("Error connecting to MongoDB:", error);
+//     } finally {
+//       // Don't close the client here, keep the connection open until the server shuts down
+//     }
+//   }
+  
+//   async function insertData(client, receivedData) {
+//     const database = client.db("reaction-time-data"); 
+//     const collection = database.collection("reaction-time-table");
+  
+//     const data = {
+//       name: receivedData.name,
+//       gender: receivedData.gender,
+//       reactionTime: receivedData.reactionTime,
+//     };
+  
+//     try {
+//       const result = await collection.insertOne(data);
+//       console.log("Inserted document with _id:", result.insertedId);
+//     } catch (error) {
+//       console.error("Error inserting document:", error);
+//     }
+//   }
+  
+//   const port = process.env.PORT || 3000;
+  
+//   run().then(() => {
+//     app.listen(port, () => {
+//       console.log(`Server is running on http://localhost:${port}`);
+//     });
+//   }).catch(console.error);
+
+
+// app.listen(port, () => {
+//   console.log(`Server is running on port ${port}`);
+// });
 const express = require("express");
-const app = express();
-const path = require("path");
 const bodyParser = require("body-parser");
-const fs = require("fs");
-const csv = require("csv-parser");
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const path = require("path");
 
-const { Pool } = require("pg");
+const app = express();
+const port = process.env.PORT || 3000;
 
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "reactiondata",
-  password: "postgre@123",
-  port: 5432,
-});
-
-// Middleware to parse JSON bodies
+// Middleware
 app.use(bodyParser.json());
-
-// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
 
-app.post("/submitData", (req, res) => {
-  const receivedData = req.body;
-  console.log("Received data:", receivedData);
+// MongoDB URI
+const uri =
+  "mongodb+srv://saransh1906:mongo%40123@reactiontime.lqhvjwy.mongodb.net/?retryWrites=true&w=majority&appName=reactiontime";
 
-  // Save data to CSV file
-  saveToCSV(receivedData);
+// Function to insert data into MongoDB
+async function insertData(client, receivedData) {
+  const database = client.db("reaction-time-data"); 
+  const collection = database.collection("reaction-time-table");
 
-  // Send response back to client
-  res.sendStatus(200);
-});
+  const data = {
+    name: receivedData.name,
+    gender: receivedData.gender,
+    reactionTime: receivedData.reactionTime,
+  };
 
-// Function to save data to CSV file
-function saveToCSV(data) {
-  // const csvData = `${data.name},${data.age},${data.email}\n`;
-  const csvData = `${data.name || "assa"},${data.gender || "M"},${
-    data.reactionTime || ""
-  }\n`;
-
-  fs.appendFile("data.csv", csvData, (err) => {
-    if (err) {
-      console.error("Error writing to CSV file:", err);
-      return;
-    }
-    console.log("Data has been saved to data.csv");
-  });
-
-  const insertDataQuery = `
-    INSERT INTO users (name, gender, reaction_time) VALUES ($1, $2, $3);
-`;
-  const values = [data.name,data.gender, Math.floor(data.reactionTime)];
-
-  pool.query(insertDataQuery, values, (err, result) => {
-    if (err) {
-      console.error("Error inserting data:", err);
-    } else {
-      console.log("Data inserted successfully");
-    }
-  });
+  try {
+    const result = await collection.insertOne(data);
+    console.log("Inserted document with _id:", result.insertedId);
+  } catch (error) {
+    console.error("Error inserting document:", error);
+  }
 }
 
-// Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// Connect to MongoDB and start server
+async function run() {
+  const client = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
 
+  try {
+    await client.connect();
+    console.log(
+      "Connected to MongoDB. You successfully connected to MongoDB!"
+    );
+    
+    // Route to handle POST requests to submit data
+    app.post("/submitData", (req, res) => {
+      const receivedData = req.body;
+      console.log("Received data:", receivedData);
+      insertData(client, receivedData);
+      res.sendStatus(200);
+    });
+
+    // Route to handle GET requests at the root URL
+    app.get("/", (req, res) => {
+      res.send("Hello World!"); // You can customize the response as needed
+    });
+
+    // Start the Express server
+    app.listen(port, () => {
+      console.log(`Server is running on http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+  }
+}
+
+run().catch(console.error);
