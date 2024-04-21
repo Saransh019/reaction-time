@@ -150,3 +150,5 @@ async function run() {
 }
 
 run().catch(console.error);
+
+module.exports = app;
